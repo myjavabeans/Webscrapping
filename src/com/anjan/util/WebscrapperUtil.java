@@ -22,15 +22,16 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 /**
  * This is Util Class for Webscrapper
+ * 
  * @author Anjan Arun Bhowmick
  *
  */
 public class WebscrapperUtil {
-	
+
 	private static Logger logger = Logger.getLogger(WebscrapperUtil.class);
 
 	private static final String baseUrl = "https://www.thehindu.com/archive/";
-	private static String startingMonth = "";
+	private static String startingMonth = "Jan";
 
 	private static WebClient getWebClient() {
 		WebClient client = new WebClient();
@@ -38,21 +39,21 @@ public class WebscrapperUtil {
 		client.getOptions().setJavaScriptEnabled(false);
 		return client;
 	}
-	
-	private static int getCurrentYear(){
-		Calendar c= Calendar.getInstance();
+
+	private static int getCurrentYear() {
+		Calendar c = Calendar.getInstance();
 		int cYear = c.get(Calendar.YEAR);
 		return cYear;
 	}
-	
-	private static int getCurrentMonth(){
-		Calendar c= Calendar.getInstance();
+
+	private static int getCurrentMonth() {
+		Calendar c = Calendar.getInstance();
 		int cMonth = c.get(Calendar.MONTH);
-		return cMonth+1;
+		return cMonth + 1;
 	}
-	
-	private static int getCurrentMonthDays(){
-		Calendar c= Calendar.getInstance();
+
+	private static int getCurrentMonthDays() {
+		Calendar c = Calendar.getInstance();
 		int cDate = c.get(Calendar.DAY_OF_MONTH);
 		return cDate;
 	}
@@ -107,15 +108,15 @@ public class WebscrapperUtil {
 	private static int numberOfDays(String year, int month) {
 
 		int tYear = Integer.parseInt(year);
-		
-		if(tYear == getCurrentYear() && month == getCurrentMonth()){
-			return (getCurrentMonthDays()-2);
+
+		if (tYear == getCurrentYear() && month == getCurrentMonth()) {
+			return (getCurrentMonthDays() - 2);
 		}
 
 		if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
 			return 31;
 		} else if (month == 2) {
-			if (tYear % 400 == 0) {
+			if (tYear % 4 == 0) {
 				return 29;
 			} else {
 				return 28;
@@ -139,7 +140,7 @@ public class WebscrapperUtil {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		int tMonth = cal.get(Calendar.MONTH);
-		return tMonth+1;
+		return tMonth + 1;
 	}
 
 	/**
@@ -153,27 +154,30 @@ public class WebscrapperUtil {
 
 		Set<String> year = new TreeSet<String>();
 		year.addAll(getAllYear());
-		
-		logger.info("Total Year : "+year.size());
+		//year.add("2018"); // uncomment the above and month = 12
+
+		logger.info("Total Year : " + year.size());
 
 		List<String> allMonthWiseUrl = new ArrayList<String>();
 
 		for (String tempYear : year) {
 
 			int temp = 1;
-			if(tempYear.equals(year.toArray()[0])){
+			if (tempYear.equals(year.toArray()[0])) {
 				try {
 					temp = getMonthNumber(startingMonth);
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
 			}
-			
-			for (int i = temp; i <= 12; i++) {
+
+			for (int i = temp; i <= 12; i++) { // month = 12
 
 				int numberOfDays = numberOfDays(tempYear, i);
-				
-				logger.info("URL Details : [Year - "+tempYear+", Month - "+i+", Number of Days - "+numberOfDays+"]");
+				//int numberOfDays = 1;
+
+				logger.info("URL Details : [Year - " + tempYear + ", Month - " + i + ", Number of Days - "
+						+ numberOfDays + "]");
 
 				for (int j = 1; j <= numberOfDays; j++) {
 					String tUrl = url + tempYear + "/" + formatInt(i) + "/" + formatInt(j);
@@ -189,12 +193,11 @@ public class WebscrapperUtil {
 
 	}
 
-	
 	private static List<String> getArticleUrls() {
 
 		List<String> urls = getMonthWiseLink();
-		
-		logger.info("Total URL Monthwise : "+urls.size());
+
+		logger.info("Total URL Monthwise : " + urls.size());
 
 		List<String> articleUrl = new ArrayList<String>();
 
@@ -204,8 +207,8 @@ public class WebscrapperUtil {
 
 			try {
 
-				logger.info("Processing URL - "+url);
-				
+				logger.info("Processing URL - " + url);
+
 				HtmlPage page = client.getPage(url);
 
 				List<Object> items = page.getByXPath("//ul[@class='archive-list']");
@@ -234,8 +237,8 @@ public class WebscrapperUtil {
 
 		}
 
-		logger.info("Total Article URL : "+articleUrl.size());
-		
+		logger.info("Total Article URL : " + articleUrl.size());
+
 		return articleUrl;
 
 	}
@@ -249,8 +252,8 @@ public class WebscrapperUtil {
 
 		try {
 
-			logger.info("Processing Article URL : "+url);
-			
+			logger.info("Processing Article URL : " + url);
+
 			HtmlPage page = client.getPage(url);
 
 			HtmlElement title = ((HtmlElement) page.getFirstByXPath(".//h1[@class='title']"));
@@ -277,8 +280,8 @@ public class WebscrapperUtil {
 				++count;
 			}
 
-			logger.info("Article Details : ["+bean.getAuthor()+", "+bean.getArticleTitle()+"]");
-			
+			logger.info("Article Details : [" + bean.getAuthor() + ", " + bean.getArticleTitle() + "]");
+
 			if (authorName != null && !authorName.isEmpty() && authorName.equals(bean.getAuthor())) {
 				return bean;
 			} else if (authorName != null && !authorName.isEmpty() && !authorName.equals(bean.getAuthor())) {
@@ -313,19 +316,19 @@ public class WebscrapperUtil {
 
 		try {
 
-			logger.info("Processing Author URL - "+url);
-			
+			logger.info("Processing Author URL - " + url);
+
 			HtmlPage page = client.getPage(url);
 
 			HtmlAnchor authors = ((HtmlAnchor) page.getFirstByXPath(".//a[@class='auth-nm lnk']"));
-			if (author != null) {
+			if (authors != null) {
 				author = authors.asText();
 			}
-			
-			logger.info("Author Retrieved : "+author);
+
+			logger.info("Author Retrieved : " + author);
 
 		} catch (Exception e) {
-			logger.error("Exception in Getting Author", e);
+			logger.error("Exception in Getting Author");
 		} finally {
 			client.close();
 		}
@@ -336,24 +339,27 @@ public class WebscrapperUtil {
 
 	/**
 	 * This method is to get All Author Name
+	 * 
 	 * @return - List of Strings
 	 */
 	public static List<String> getAllAuthors() {
 
 		List<String> lists = getArticleUrls();
-		
-		logger.info("Total Article URLs : "+lists.size());
+
+		logger.info("Total Article URLs : " + lists.size());
 
 		Set<String> setAuthors = new HashSet<String>();
 
 		for (String list : lists) {
-			setAuthors.add(getAuthor(list));
+			String author = getAuthor(list);
+			if (author != null && !author.isEmpty())
+				setAuthors.add(author);
 		}
 
 		List<String> tempList = new ArrayList<String>();
 		tempList.addAll(setAuthors);
-		
-		logger.info("Total Authors : "+tempList.size());
+
+		logger.info("Total Authors : " + tempList.size());
 
 		return tempList;
 
@@ -361,22 +367,29 @@ public class WebscrapperUtil {
 
 	/**
 	 * This method is to search articles based on Author Name
-	 * @param authorName - Author Name
+	 * 
+	 * @param authorName
+	 *            - Author Name
 	 * @return - Return list of Articles
 	 */
 	public static List<ArticleBean> searchByAuthorName(String authorName) {
 
 		List<String> lists = getArticleUrls();
-		
-		logger.info("Total Article URLs : "+lists.size());
+
+		logger.info("Total Article URLs : " + lists.size());
 
 		List<ArticleBean> listArticle = new ArrayList<ArticleBean>();
 
 		for (String list : lists) {
-			listArticle.add(getArticleDetails(list, authorName, null, null));
+			ArticleBean bean = getArticleDetails(list, authorName, null, null);
+
+			if (bean != null && bean.getArticleTitle() != null && bean.getArticleDesc() != null) {
+				listArticle.add(bean);
+			}
+
 		}
-		
-		logger.info("Total Article Size : "+listArticle.size());
+
+		logger.info("Total Article Size : " + listArticle.size());
 
 		return listArticle;
 
@@ -384,23 +397,32 @@ public class WebscrapperUtil {
 
 	/**
 	 * This method is to search articles based on title and description
-	 * @param title - Title of Article
-	 * @param desc - Description of Article
+	 * 
+	 * @param title
+	 *            - Title of Article
+	 * @param desc
+	 *            - Description of Article
 	 * @return - Return list of Articles
 	 */
 	public static List<ArticleBean> searchByArticleDesc(String title, String desc) {
 
 		List<String> lists = getArticleUrls();
-		
-		logger.info("Total Article URLs : "+lists.size());
+
+		logger.info("Total Article URLs : " + lists.size());
 
 		List<ArticleBean> listArticle = new ArrayList<ArticleBean>();
 
 		for (String list : lists) {
-			listArticle.add(getArticleDetails(list, null, title, desc));
+
+			ArticleBean bean = getArticleDetails(list, null, title, desc);
+
+			if (bean != null && bean.getArticleTitle() != null && bean.getArticleDesc() != null) {
+				listArticle.add(bean);
+			}
+
 		}
-		
-		logger.info("Total Article Size : "+listArticle.size());
+
+		logger.info("Total Article Size : " + listArticle.size());
 
 		return listArticle;
 
