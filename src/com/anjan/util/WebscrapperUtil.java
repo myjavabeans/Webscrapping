@@ -1,12 +1,20 @@
 package com.anjan.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
+
+import org.apache.log4j.Logger;
 
 import com.anjan.bean.ArticleBean;
+import com.anjan.controller.WebscrapperController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
@@ -19,8 +27,11 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
  *
  */
 public class WebscrapperUtil {
+	
+	private static Logger logger = Logger.getLogger(WebscrapperUtil.class);
 
 	private static final String baseUrl = "https://www.thehindu.com/archive/";
+	private static String startingMonth = "";
 
 	private static WebClient getWebClient() {
 		WebClient client = new WebClient();
@@ -32,21 +43,18 @@ public class WebscrapperUtil {
 	private static int getCurrentYear(){
 		Calendar c= Calendar.getInstance();
 		int cYear = c.get(Calendar.YEAR);
-		System.out.println(cYear);
 		return cYear;
 	}
 	
 	private static int getCurrentMonth(){
 		Calendar c= Calendar.getInstance();
 		int cMonth = c.get(Calendar.MONTH);
-		System.out.println(cMonth+1);
 		return cMonth+1;
 	}
 	
 	private static int getCurrentMonthDays(){
 		Calendar c= Calendar.getInstance();
 		int cDate = c.get(Calendar.DAY_OF_MONTH);
-		System.out.println(cDate);
 		return cDate;
 	}
 
@@ -65,6 +73,17 @@ public class WebscrapperUtil {
 			HtmlPage page = client.getPage(url);
 
 			List<Object> items = page.getByXPath("//h2[@class='archiveH2']");
+
+			HtmlElement tMonth = (HtmlElement) page.getFirstByXPath("//ul[@class='archiveMonthList']");
+			Iterable<DomElement> elements = tMonth.getChildElements();
+
+			int count = 1;
+			for (DomElement element : elements) {
+				if (count == 1) {
+					startingMonth = element.asText();
+				}
+				break;
+			}
 
 			if (items.isEmpty()) {
 				System.out.println("No Year found !");
@@ -116,6 +135,14 @@ public class WebscrapperUtil {
 		}
 	}
 
+	private static int getMonthNumber(String month) throws ParseException {
+		Date date = new SimpleDateFormat("MMM", Locale.ENGLISH).parse(month);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		int tMonth = cal.get(Calendar.MONTH);
+		return tMonth+1;
+	}
+
 	/**
 	 * This method will create Month wise link
 	 * 
@@ -125,13 +152,21 @@ public class WebscrapperUtil {
 
 		String url = baseUrl + "web/";
 
-		Set<String> year = getAllYear();
+		Set<String> year = new TreeSet<String>();
+		year.addAll(getAllYear());
 
 		List<String> allMonthWiseUrl = new ArrayList<String>();
 
 		for (String tempYear : year) {
 
 			for (int i = 1; i <= 12; i++) {
+				if(tempYear.equals(year.toArray()[0])){
+					try {
+						i = getMonthNumber(startingMonth);
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}
 
 				int numberOfDays = numberOfDays(tempYear, i);
 
@@ -153,12 +188,12 @@ public class WebscrapperUtil {
 	private static List<String> getArticleUrls() {
 
 		List<String> urls = getMonthWiseLink();
+		
+		logger.info("Total URL Monthwise : "+urls.size());
 
 		List<String> articleUrl = new ArrayList<String>();
 
 		for (String url : urls) {
-
-			System.out.println("Processing URL : " + url);
 
 			WebClient client = getWebClient();
 
@@ -169,7 +204,7 @@ public class WebscrapperUtil {
 				List<Object> items = page.getByXPath("//ul[@class='archive-list']");
 
 				if (items.isEmpty()) {
-					System.out.println("No Article found !");
+					logger.info("No Article found !");
 				} else {
 					for (Object item : items) {
 						HtmlElement tempItem = (HtmlElement) item;
@@ -185,7 +220,7 @@ public class WebscrapperUtil {
 				}
 
 			} catch (Exception e) {
-				System.out.println(e.getMessage());
+				logger.error("Exception in Getting Article URL", e);
 			} finally {
 				client.close();
 			}
@@ -265,15 +300,19 @@ public class WebscrapperUtil {
 
 		try {
 
+			logger.info("Processing URL - "+url);
+			
 			HtmlPage page = client.getPage(url);
 
 			HtmlAnchor authors = ((HtmlAnchor) page.getFirstByXPath(".//a[@class='auth-nm lnk']"));
 			if (author != null) {
 				author = authors.asText();
 			}
+			
+			logger.info("Author Retrieved : "+author);
 
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			logger.error("Exception in Getting Author", e);
 		} finally {
 			client.close();
 		}
@@ -289,6 +328,8 @@ public class WebscrapperUtil {
 	public static List<String> getAllAuthors() {
 
 		List<String> lists = getArticleUrls();
+		
+		logger.info("Total Article URLs : "+lists.size());
 
 		Set<String> setAuthors = new HashSet<String>();
 
@@ -298,6 +339,8 @@ public class WebscrapperUtil {
 
 		List<String> tempList = new ArrayList<String>();
 		tempList.addAll(setAuthors);
+		
+		logger.info("Total Authors : "+tempList.size());
 
 		return tempList;
 
@@ -311,12 +354,16 @@ public class WebscrapperUtil {
 	public static List<ArticleBean> searchByAuthorName(String authorName) {
 
 		List<String> lists = getArticleUrls();
+		
+		logger.info("Total Article URLs : "+lists.size());
 
 		List<ArticleBean> listArticle = new ArrayList<ArticleBean>();
 
 		for (String list : lists) {
 			listArticle.add(getArticleDetails(list, authorName, null, null));
 		}
+		
+		logger.info("Total Article Size : "+listArticle.size());
 
 		return listArticle;
 
@@ -331,12 +378,16 @@ public class WebscrapperUtil {
 	public static List<ArticleBean> searchByArticleDesc(String title, String desc) {
 
 		List<String> lists = getArticleUrls();
+		
+		logger.info("Total Article URLs : "+lists.size());
 
 		List<ArticleBean> listArticle = new ArrayList<ArticleBean>();
 
 		for (String list : lists) {
 			listArticle.add(getArticleDetails(list, null, title, desc));
 		}
+		
+		logger.info("Total Article Size : "+listArticle.size());
 
 		return listArticle;
 

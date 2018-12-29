@@ -2,6 +2,7 @@ package com.anjan.controller;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,8 @@ import com.anjan.bo.WebscrapperBO;
 
 @RestController
 public class WebscrapperController {
+	
+	private static Logger logger = Logger.getLogger(WebscrapperController.class);
 	
 	private final String sharedKey = "SHARED_KEY";
 	
@@ -41,6 +44,8 @@ public class WebscrapperController {
 	@RequestMapping(value = "/getAllAuthors", method = RequestMethod.POST)
 	public AuthorsResponseBean getAllAuthors(@RequestParam(value = "key") String key) {
 
+		logger.info("Started Getting All Authors...");
+		
 		AuthorsResponseBean response = new AuthorsResponseBean();
 
 		if (sharedKey.equals(key)) {
@@ -56,6 +61,8 @@ public class WebscrapperController {
 			response.setCode(CODE_ERROR);
 		}
 
+		logger.info("Finished Getting All Authors...");
+		
 		return response;
 	}
 	
@@ -68,6 +75,8 @@ public class WebscrapperController {
 	@RequestMapping(value = "/getArticleByAuthor", method = RequestMethod.POST)
 	public ArticlesResponseBean getArticlesByAuthor(@RequestParam(value = "key") String key, @RequestBody ArticleBean bean) {
 
+		logger.info("Started Getting All Articles by Author...");
+		
 		ArticlesResponseBean response = new ArticlesResponseBean();
 
 		if (sharedKey.equals(key)) {
@@ -83,6 +92,8 @@ public class WebscrapperController {
 			response.setCode(CODE_ERROR);
 		}
 
+		logger.info("Finished Getting All Articles by Author...");
+		
 		return response;
 	}
 	
@@ -95,6 +106,8 @@ public class WebscrapperController {
 	@RequestMapping(value = "/getArticleByTitle", method = RequestMethod.POST)
 	public ArticlesResponseBean getArticlesByTitle(@RequestParam(value = "key") String key, @RequestBody ArticleBean bean) {
 
+		logger.info("Started Getting All Articles by Title and Description...");
+		
 		ArticlesResponseBean response = new ArticlesResponseBean();
 
 		if (sharedKey.equals(key)) {
@@ -109,6 +122,8 @@ public class WebscrapperController {
 			response.setStatus(ERROR_STATUS);
 			response.setCode(CODE_ERROR);
 		}
+		
+		logger.info("Started Getting All Articles by Title and Description...");
 
 		return response;
 	}
