@@ -79,7 +79,7 @@ public class WebscrapperController {
 		
 		ArticlesResponseBean response = new ArticlesResponseBean();
 
-		if (sharedKey.equals(key)) {
+		if (sharedKey.equals(key) && bean != null) {
 
 			List<ArticleBean> articles = webscrapperBO.getArticlesByAuthorName(bean.getAuthor());
 			response.setListArticle(articles);
@@ -110,7 +110,7 @@ public class WebscrapperController {
 		
 		ArticlesResponseBean response = new ArticlesResponseBean();
 
-		if (sharedKey.equals(key)) {
+		if (sharedKey.equals(key) && bean != null) {
 
 			List<ArticleBean> articles = webscrapperBO.getArticlesByTitleDescription(bean.getArticleTitle(), bean.getArticleDesc());
 			response.setListArticle(articles);

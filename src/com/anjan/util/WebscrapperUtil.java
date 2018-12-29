@@ -243,8 +243,7 @@ public class WebscrapperUtil {
 
 	}
 
-	private static ArticleBean getArticleDetails(String url, String authorName, String titleArticle,
-			String descArticle) {
+	private static ArticleBean getArticleDetails(String url) {
 
 		WebClient client = getWebClient();
 
@@ -260,13 +259,6 @@ public class WebscrapperUtil {
 
 			bean.setArticleTitle(title.asText());
 
-			HtmlAnchor author = ((HtmlAnchor) page.getFirstByXPath(".//a[@class='auth-nm lnk']"));
-			if (author != null) {
-				bean.setAuthor(author.asText());
-			} else {
-				bean.setAuthor("");
-			}
-
 			HtmlElement description = (HtmlElement) page.getFirstByXPath(".//div[@class='article']");
 
 			Iterable<DomElement> elements = description.getChildElements();
@@ -279,27 +271,18 @@ public class WebscrapperUtil {
 				}
 				++count;
 			}
+			
+			HtmlAnchor author = ((HtmlAnchor) page.getFirstByXPath(".//a[@class='auth-nm lnk']"));
+			if (author != null) {
+				bean.setAuthor(author.asText());
+			} else {
+				bean.setAuthor("");
+			}
 
 			logger.info("Article Details : [" + bean.getAuthor() + ", " + bean.getArticleTitle() + "]");
 
-			if (authorName != null && !authorName.isEmpty() && authorName.equals(bean.getAuthor())) {
-				return bean;
-			} else if (authorName != null && !authorName.isEmpty() && !authorName.equals(bean.getAuthor())) {
-				return null;
-			}
-
-			if (((titleArticle != null && !titleArticle.isEmpty()) || (descArticle != null && !descArticle.isEmpty()))
-					&& (titleArticle.contains(bean.getArticleTitle()) || descArticle.contains(bean.getArticleDesc()))) {
-				return bean;
-			} else if (((titleArticle != null && !titleArticle.isEmpty())
-					|| (descArticle != null && !descArticle.isEmpty()))
-					&& (!titleArticle.contains(bean.getArticleTitle())
-							&& !descArticle.contains(bean.getArticleDesc()))) {
-				return null;
-			}
-
 		} catch (Exception e) {
-			logger.error("Exception in retrieving Article", e);
+			logger.error("Exception in retrieving Article"+ e.getMessage());
 		} finally {
 			client.close();
 		}
@@ -381,9 +364,9 @@ public class WebscrapperUtil {
 		List<ArticleBean> listArticle = new ArrayList<ArticleBean>();
 
 		for (String list : lists) {
-			ArticleBean bean = getArticleDetails(list, authorName, null, null);
+			ArticleBean bean = getArticleDetails(list);
 
-			if (bean != null && bean.getArticleTitle() != null && bean.getArticleDesc() != null) {
+			if (bean != null && bean.getArticleTitle() != null && bean.getArticleDesc() != null && bean.getAuthor()!= null && bean.getAuthor().contains(authorName)) {
 				listArticle.add(bean);
 			}
 
@@ -414,9 +397,9 @@ public class WebscrapperUtil {
 
 		for (String list : lists) {
 
-			ArticleBean bean = getArticleDetails(list, null, title, desc);
+			ArticleBean bean = getArticleDetails(list);
 
-			if (bean != null && bean.getArticleTitle() != null && bean.getArticleDesc() != null) {
+			if (bean != null && bean.getArticleTitle() != null && bean.getArticleDesc() != null && (bean.getArticleTitle().contains(title) || bean.getArticleDesc().contains(desc))) {
 				listArticle.add(bean);
 			}
 
