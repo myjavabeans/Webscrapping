@@ -50,6 +50,7 @@ public class WebscrapperUtil {
 				for (Object item : items) {
 					HtmlElement tempItem = (HtmlElement) item;
 					String year = tempItem.asText();
+					yearSet.add(year);
 				}
 			}
 
