@@ -1,6 +1,7 @@
 package com.anjan.util;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,27 @@ public class WebscrapperUtil {
 		client.getOptions().setCssEnabled(false);
 		client.getOptions().setJavaScriptEnabled(false);
 		return client;
+	}
+	
+	private static int getCurrentYear(){
+		Calendar c= Calendar.getInstance();
+		int cYear = c.get(Calendar.YEAR);
+		System.out.println(cYear);
+		return cYear;
+	}
+	
+	private static int getCurrentMonth(){
+		Calendar c= Calendar.getInstance();
+		int cMonth = c.get(Calendar.MONTH);
+		System.out.println(cMonth+1);
+		return cMonth+1;
+	}
+	
+	private static int getCurrentMonthDays(){
+		Calendar c= Calendar.getInstance();
+		int cDate = c.get(Calendar.DAY_OF_MONTH);
+		System.out.println(cDate);
+		return cDate;
 	}
 
 	/**
@@ -67,6 +89,10 @@ public class WebscrapperUtil {
 	private static int numberOfDays(String year, int month) {
 
 		int tYear = Integer.parseInt(year);
+		
+		if(tYear == getCurrentYear() && month == getCurrentMonth()){
+			return (getCurrentMonthDays()-2);
+		}
 
 		if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
 			return 31;
