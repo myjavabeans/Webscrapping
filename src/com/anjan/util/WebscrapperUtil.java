@@ -14,7 +14,6 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 
 import com.anjan.bean.ArticleBean;
-import com.anjan.controller.WebscrapperController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
@@ -154,21 +153,27 @@ public class WebscrapperUtil {
 
 		Set<String> year = new TreeSet<String>();
 		year.addAll(getAllYear());
+		
+		logger.info("Total Year : "+year.size());
 
 		List<String> allMonthWiseUrl = new ArrayList<String>();
 
 		for (String tempYear : year) {
 
-			for (int i = 1; i <= 12; i++) {
-				if(tempYear.equals(year.toArray()[0])){
-					try {
-						i = getMonthNumber(startingMonth);
-					} catch (ParseException e) {
-						e.printStackTrace();
-					}
+			int temp = 1;
+			if(tempYear.equals(year.toArray()[0])){
+				try {
+					temp = getMonthNumber(startingMonth);
+				} catch (ParseException e) {
+					e.printStackTrace();
 				}
+			}
+			
+			for (int i = temp; i <= 12; i++) {
 
 				int numberOfDays = numberOfDays(tempYear, i);
+				
+				logger.info("URL Details : [Year - "+tempYear+", Month - "+i+", Number of Days - "+numberOfDays+"]");
 
 				for (int j = 1; j <= numberOfDays; j++) {
 					String tUrl = url + tempYear + "/" + formatInt(i) + "/" + formatInt(j);
@@ -199,6 +204,8 @@ public class WebscrapperUtil {
 
 			try {
 
+				logger.info("Processing URL - "+url);
+				
 				HtmlPage page = client.getPage(url);
 
 				List<Object> items = page.getByXPath("//ul[@class='archive-list']");
@@ -227,6 +234,8 @@ public class WebscrapperUtil {
 
 		}
 
+		logger.info("Total Article URL : "+articleUrl.size());
+		
 		return articleUrl;
 
 	}
@@ -240,6 +249,8 @@ public class WebscrapperUtil {
 
 		try {
 
+			logger.info("Processing Article URL : "+url);
+			
 			HtmlPage page = client.getPage(url);
 
 			HtmlElement title = ((HtmlElement) page.getFirstByXPath(".//h1[@class='title']"));
@@ -266,6 +277,8 @@ public class WebscrapperUtil {
 				++count;
 			}
 
+			logger.info("Article Details : ["+bean.getAuthor()+", "+bean.getArticleTitle()+"]");
+			
 			if (authorName != null && !authorName.isEmpty() && authorName.equals(bean.getAuthor())) {
 				return bean;
 			} else if (authorName != null && !authorName.isEmpty() && !authorName.equals(bean.getAuthor())) {
@@ -283,7 +296,7 @@ public class WebscrapperUtil {
 			}
 
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			logger.error("Exception in retrieving Article", e);
 		} finally {
 			client.close();
 		}
@@ -300,7 +313,7 @@ public class WebscrapperUtil {
 
 		try {
 
-			logger.info("Processing URL - "+url);
+			logger.info("Processing Author URL - "+url);
 			
 			HtmlPage page = client.getPage(url);
 
