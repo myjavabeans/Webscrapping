@@ -3,8 +3,8 @@ package com.anjan.bean;
 import java.util.List;
 
 /**
- * This class will list all the authors
- * @author bhoan02
+ * This is response class to list all the authors
+ * @author Anjan Arun Bhowmick
  *
  */
 public class AuthorsResponseBean {

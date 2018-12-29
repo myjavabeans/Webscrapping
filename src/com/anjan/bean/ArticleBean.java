@@ -1,5 +1,10 @@
 package com.anjan.bean;
 
+/**
+ * This is Bean Class
+ * @author Anjan Arun Bhowmick
+ *
+ */
 public class ArticleBean {
 
 	private String articleTitle;

@@ -12,6 +12,11 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
+/**
+ * This is Util Class for Webscrapper
+ * @author Anjan Arun Bhowmick
+ *
+ */
 public class WebscrapperUtil {
 
 	private static final String baseUrl = "https://www.thehindu.com/archive/";
@@ -117,11 +122,7 @@ public class WebscrapperUtil {
 
 	}
 
-	/**
-	 * This method will get All Article Urls
-	 * 
-	 * @return
-	 */
+	
 	private static List<String> getArticleUrls() {
 
 		List<String> urls = getMonthWiseLink();
@@ -168,7 +169,7 @@ public class WebscrapperUtil {
 
 	}
 
-	public static ArticleBean getArticleDetails(String url, String authorName, String titleArticle,
+	private static ArticleBean getArticleDetails(String url, String authorName, String titleArticle,
 			String descArticle) {
 
 		WebClient client = getWebClient();
@@ -229,7 +230,7 @@ public class WebscrapperUtil {
 
 	}
 
-	public static String getAuthor(String url) {
+	private static String getAuthor(String url) {
 
 		WebClient client = getWebClient();
 
@@ -254,6 +255,10 @@ public class WebscrapperUtil {
 
 	}
 
+	/**
+	 * This method is to get All Author Name
+	 * @return - List of Strings
+	 */
 	public static List<String> getAllAuthors() {
 
 		List<String> lists = getArticleUrls();
@@ -271,6 +276,11 @@ public class WebscrapperUtil {
 
 	}
 
+	/**
+	 * This method is to search articles based on Author Name
+	 * @param authorName - Author Name
+	 * @return - Return list of Articles
+	 */
 	public static List<ArticleBean> searchByAuthorName(String authorName) {
 
 		List<String> lists = getArticleUrls();
@@ -285,6 +295,12 @@ public class WebscrapperUtil {
 
 	}
 
+	/**
+	 * This method is to search articles based on title and description
+	 * @param title - Title of Article
+	 * @param desc - Description of Article
+	 * @return - Return list of Articles
+	 */
 	public static List<ArticleBean> searchByArticleDesc(String title, String desc) {
 
 		List<String> lists = getArticleUrls();

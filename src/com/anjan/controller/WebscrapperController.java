@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.anjan.bean.ArticleBean;
+import com.anjan.bean.ArticlesResponseBean;
 import com.anjan.bean.AuthorsResponseBean;
 import com.anjan.bo.WebscrapperBO;
-import com.anjan.hibernate.bean.EmployeeBean;
 
 @RestController
 public class WebscrapperController {
@@ -33,6 +33,11 @@ public class WebscrapperController {
 		this.webscrapperBO = webscrapperBO;
 	}
 
+	/**
+	 * This method will be invoked to get all authors
+	 * @param key - API Key
+	 * @return - JSON Response
+	 */
 	@RequestMapping(value = "/getAllAuthors", method = RequestMethod.POST)
 	public AuthorsResponseBean getAllAuthors(@RequestParam(value = "key") String key) {
 
@@ -54,14 +59,21 @@ public class WebscrapperController {
 		return response;
 	}
 	
+	/**
+	 * This method will be invoked to get all articles by Author
+	 * @param key - API Key
+	 * @param bean - Request Bean
+	 * @return - JSON Response
+	 */
 	@RequestMapping(value = "/getArticleByAuthor", method = RequestMethod.POST)
-	public AuthorsResponseBean getArticlesByAuthor(@RequestParam(value = "key") String key, @RequestBody ArticleBean bean) {
+	public ArticlesResponseBean getArticlesByAuthor(@RequestParam(value = "key") String key, @RequestBody ArticleBean bean) {
 
-		AuthorsResponseBean response = new AuthorsResponseBean();
+		ArticlesResponseBean response = new ArticlesResponseBean();
 
 		if (sharedKey.equals(key)) {
 
-			List<ArticleBean> authors = webscrapperBO.getArticlesByAuthorName(bean.getAuthor());
+			List<ArticleBean> articles = webscrapperBO.getArticlesByAuthorName(bean.getAuthor());
+			response.setListArticle(articles);
 			response.setStatus(SUCCESS_STATUS);
 			response.setCode(CODE_SUCCESS);
 
@@ -74,14 +86,21 @@ public class WebscrapperController {
 		return response;
 	}
 	
+	/**
+	 * This method will be invoked to get all articles by Title/Description
+	 * @param key - API Key
+	 * @param bean - Request Bean
+	 * @return - JSON Response
+	 */
 	@RequestMapping(value = "/getArticleByTitle", method = RequestMethod.POST)
-	public AuthorsResponseBean getArticlesByTitle(@RequestParam(value = "key") String key, @RequestBody ArticleBean bean) {
+	public ArticlesResponseBean getArticlesByTitle(@RequestParam(value = "key") String key, @RequestBody ArticleBean bean) {
 
-		AuthorsResponseBean response = new AuthorsResponseBean();
+		ArticlesResponseBean response = new ArticlesResponseBean();
 
 		if (sharedKey.equals(key)) {
 
-			List<ArticleBean> authors = webscrapperBO.getArticlesByTitleDescription(bean.getArticleTitle(), bean.getArticleDesc());
+			List<ArticleBean> articles = webscrapperBO.getArticlesByTitleDescription(bean.getArticleTitle(), bean.getArticleDesc());
+			response.setListArticle(articles);
 			response.setStatus(SUCCESS_STATUS);
 			response.setCode(CODE_SUCCESS);
 

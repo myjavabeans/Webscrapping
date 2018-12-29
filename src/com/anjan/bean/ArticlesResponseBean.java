@@ -3,8 +3,8 @@ package com.anjan.bean;
 import java.util.List;
 
 /**
- * This class will return all the articles and description
- * @author bhoan02
+ * This is response class to return all the articles and description
+ * @author Anjan Arun Bhowmick
  *
  */
 public class ArticlesResponseBean {
